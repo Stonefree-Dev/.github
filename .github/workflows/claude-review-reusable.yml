@@ -1,0 +1,35 @@
+name: Claude Review (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      trigger_phrase:
+        description: Phrase that invokes Claude in comments / review bodies
+        required: false
+        type: string
+        default: '@claude'
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        description: OAuth token issued by `claude setup-token` (subscription-backed)
+        required: true
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          trigger_phrase: ${{ inputs.trigger_phrase }}
